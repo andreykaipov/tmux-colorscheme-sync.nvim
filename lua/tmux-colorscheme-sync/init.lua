@@ -11,7 +11,7 @@ function M.setup(settings)
 	config.settings = vim.tbl_deep_extend("force", config.default_settings, settings or {})
 
 	vim.api.nvim_create_autocmd({ "ColorScheme" }, {
-		group = utils.augroup("tmux-colorscheme-sync"),
+		group = utils.augroup("setvars"),
 		pattern = "*",
 		desc = "Sync nvim Normal color with active pane of tmux",
 		callback = function()
@@ -32,7 +32,7 @@ function M.setup(settings)
 
 	if config.settings.transparency then
 		vim.api.nvim_create_autocmd({ "FocusLost" }, {
-			group = utils.augroup("tmux-colorscheme-sync-focuslost"),
+			group = utils.augroup("focuslost"),
 			pattern = "*",
 			desc = "Sets some nvim highlight groups to none",
 			callback = function()
