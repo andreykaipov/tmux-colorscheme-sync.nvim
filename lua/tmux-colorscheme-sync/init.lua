@@ -37,7 +37,6 @@ function M.setup(settings)
 			desc = "Sets some nvim highlight groups to none",
 			callback = function()
 				vim.api.nvim_set_hl(0, "Normal", { bg = "none" })
-				vim.api.nvim_set_hl(0, "LineNr", { bg = "none" })
 			end,
 		})
 	end
