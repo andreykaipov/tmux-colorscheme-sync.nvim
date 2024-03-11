@@ -4,7 +4,6 @@ M.settings = {}
 
 M.default_settings = {
 	debug = false, -- debug logging
-	transparency = false, -- whether to auto overwrite some Vim highlight groups with "None"
 	mapping = nil, -- any additional highlight groups you want to expose
 	tmux_source_file = "~/.tmux.conf", -- the path of your tmux conf file the plugin will resource
 }

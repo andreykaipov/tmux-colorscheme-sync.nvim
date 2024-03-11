@@ -29,17 +29,6 @@ function M.setup(settings)
 			end
 		end,
 	})
-
-	if config.settings.transparency then
-		vim.api.nvim_create_autocmd({ "FocusLost" }, {
-			group = utils.augroup("focuslost"),
-			pattern = "*",
-			desc = "Sets some nvim highlight groups to none",
-			callback = function()
-				vim.api.nvim_set_hl(0, "Normal", { bg = "none" })
-			end,
-		})
-	end
 end
 
 return M
