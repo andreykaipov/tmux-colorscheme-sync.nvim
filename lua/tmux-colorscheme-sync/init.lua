@@ -4,14 +4,21 @@ local debug = utils.debug
 
 local M = {
 	get_hl = config.get_hl,
-	normal = nil,
+	normal = {},
+	normal_nc = {},
+	line_nr = {},
 }
+
 
 function M.setup(settings)
 	-- Let user config overwrite any default config options.
 	config.settings = vim.tbl_deep_extend("force", config.default_settings, settings or {})
 
-	vim.api.nvim_create_autocmd({ "ColorScheme" }, {
+	if not M.normal then
+		M.normal = config.get_color_mapping().normal
+	end
+
+	vim.api.nvim_create_autocmd({ "UIEnter", "ColorScheme" }, {
 		group = utils.augroup("setvars"),
 		pattern = "*",
 		desc = "Sync nvim Normal color with active pane of tmux",
@@ -32,9 +39,41 @@ function M.setup(settings)
 		end,
 	})
 
-	if not M.normal then
-		M.normal = config.get_color_mapping().normal
-	end
+        vim.api.nvim_create_autocmd({ "UIEnter", "ColorScheme" }, {
+        	group = utils.augroup("get-original-colors"),
+        	pattern = "*",
+        	desc = "",
+        	callback = function()
+        		M.normal = utils.color("Normal")
+        		M.normal_nc = utils.color("NormalNC")
+        		M.line_nr = utils.color("LineNr")
+        	end,
+        })
+        vim.api.nvim_create_autocmd({ "FocusLost" }, {
+        	group = utils.augroup("tmux-make-transparent"),
+        	pattern = "*",
+        	desc = "Sets some nvim highlight groups to none",
+        	callback = function()
+        		vim.api.nvim_set_hl(0, "Normal", { bg = "none" })
+        		vim.api.nvim_set_hl(0, "NormalNC", { bg = "none" })
+        		vim.api.nvim_set_hl(0, "LineNr", { bg = "none" })
+        		-- TODO: make neotree transparent when focus is lost but i'm still in nvim
+        		-- don't think it's possible, when NeoTreeNormalNC is none, it takes the bg of Normal always
+        		-- might just use float windows for it anyway
+        		-- vim.api.nvim_set_hl(0, "NeoTreeNormal", { bg = "none" })
+        		-- vim.api.nvim_set_hl(0, "NeoTreeNormalNC", { bg = "none" })
+        	end,
+        })
+        vim.api.nvim_create_autocmd({ "FocusGained" }, {
+        	group = utils.augroup("tmux-restore-transparency"),
+        	pattern = "*",
+        	desc = "Restores transparency to original colors of colorscheme",
+        	callback = function()
+        		vim.api.nvim_set_hl(0, "Normal", { bg = M.normal.bg })
+        		vim.api.nvim_set_hl(0, "NormalNC", { bg = M.normal_nc.bg })
+        		vim.api.nvim_set_hl(0, "LineNr", { bg = M.line_nr.bg })
+        	end,
+        })
 
 	-- vim.api.nvim_set_hl(0, "NeoTreeNormalNC", { bg = "none" })
 	-- vim.api.nvim_set_hl(0, "NeoTreeNormalNC", { bg = "none" })
