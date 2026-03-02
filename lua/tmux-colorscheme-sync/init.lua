@@ -33,6 +33,7 @@ function M.setup(settings)
 			debug(cmd)
 			os.execute(cmd)
 
+			local changed = true
 			if config.settings.cache_file then
 				local path = vim.fn.expand(config.settings.cache_file)
 				local lines = {}
@@ -41,15 +42,30 @@ function M.setup(settings)
 					table.insert(lines, string.format("set -g @nvim_color_%s_bg '%s'", k, v.bg))
 				end
 				table.sort(lines)
-				local f = io.open(path, "w")
-				if f then
-					f:write(table.concat(lines, "\n") .. "\n")
-					f:close()
-					debug("wrote cache to " .. path)
+				local new_content = table.concat(lines, "\n") .. "\n"
+
+				-- read existing cache to check if colors changed
+				local old_content = nil
+				local rf = io.open(path, "r")
+				if rf then
+					old_content = rf:read("*a")
+					rf:close()
+				end
+
+				if old_content == new_content then
+					changed = false
+					debug("cache unchanged, skipping tmux source")
+				else
+					local wf = io.open(path, "w")
+					if wf then
+						wf:write(new_content)
+						wf:close()
+						debug("wrote cache to " .. path)
+					end
 				end
 			end
 
-			if config.settings.tmux_source_file then
+			if changed and config.settings.tmux_source_file then
 				os.execute("tmux source " .. config.settings.tmux_source_file)
 			end
 		end,
