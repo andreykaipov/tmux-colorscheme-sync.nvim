@@ -56,6 +56,11 @@ function M.setup(settings)
 					changed = false
 					debug("cache unchanged, skipping tmux source")
 				else
+					-- ensure parent directory exists
+					local dir = path:match("(.*/)")
+					if dir then
+						os.execute("mkdir -p " .. dir)
+					end
 					local wf = io.open(path, "w")
 					if wf then
 						wf:write(new_content)
