@@ -79,10 +79,18 @@ M.shade = function(color, percent)
 	if r == "default" then
 		return r
 	end
-	r = M.clamp_color(math.floor(tonumber(r * (100 + percent) / 100)))
-	g = M.clamp_color(math.floor(tonumber(g * (100 + percent) / 100)))
-	b = M.clamp_color(math.floor(tonumber(b * (100 + percent) / 100)))
-	return "#" .. string.format("%0x", r) .. string.format("%0x", g) .. string.format("%0x", b)
+	-- When a channel is 0, multiplicative shading can't lighten it.
+	-- Fall back to adding an absolute bump based on the percent.
+	local function shade_channel(c)
+		if c == 0 and percent > 0 then
+			return M.clamp_color(math.floor(255 * percent / 100))
+		end
+		return M.clamp_color(math.floor(tonumber(c * (100 + percent) / 100)))
+	end
+	r = shade_channel(r)
+	g = shade_channel(g)
+	b = shade_channel(b)
+	return "#" .. string.format("%02x", r) .. string.format("%02x", g) .. string.format("%02x", b)
 end
 
 M.to_rgb = function(color)
@@ -90,7 +98,7 @@ M.to_rgb = function(color)
 	if not color or color == "" or color == "default" then
 		return "default"
 	end
-	return tonumber(color:sub(1, 2), 16), tonumber(color:sub(3, 4), 16), tonumber(color:sub(4, 5), 16)
+	return tonumber(color:sub(1, 2), 16), tonumber(color:sub(3, 4), 16), tonumber(color:sub(5, 6), 16)
 end
 
 M.clamp_color = function(color)
