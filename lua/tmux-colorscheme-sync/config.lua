@@ -42,7 +42,7 @@ M.get_default_color_mapping = function()
 	colors.normal_lighter = colors.normal
 	colors.normal_lighter = {
 		fg = colors.normal.fg,
-		bg = M.shade(colors.normal.bg, 40),
+		bg = M.shade(colors.normal.bg, 10),
 	}
 	return colors
 end
