@@ -7,6 +7,8 @@ M.default_settings = {
 	mapping = nil, -- any additional highlight groups you want to expose
 	tmux_source_file = nil, -- optional path to source after setting colors (e.g. "~/.tmux.conf")
 	cache_file = nil, -- path to write tmux set commands so tmux can source them on cold start
+	darker_shade = -40, -- percent to darken normal_bg for normal_darker
+	lighter_shade = 5, -- percent to lighten normal_bg for normal_lighter
 }
 
 M.get_color_mapping = function()
@@ -37,12 +39,12 @@ M.get_default_color_mapping = function()
 	colors.normal_darker = colors.normal
 	colors.normal_darker = {
 		fg = colors.normal.fg,
-		bg = M.shade(colors.normal.bg, -40),
+		bg = M.shade(colors.normal.bg, M.settings.darker_shade),
 	}
 	colors.normal_lighter = colors.normal
 	colors.normal_lighter = {
 		fg = colors.normal.fg,
-		bg = M.shade(colors.normal.bg, 20),
+		bg = M.shade(colors.normal.bg, M.settings.lighter_shade),
 	}
 	return colors
 end
