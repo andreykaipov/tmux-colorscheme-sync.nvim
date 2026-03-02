@@ -33,6 +33,22 @@ function M.setup(settings)
 			debug(cmd)
 			os.execute(cmd)
 
+			if config.settings.cache_file then
+				local path = vim.fn.expand(config.settings.cache_file)
+				local lines = {}
+				for k, v in pairs(colors) do
+					table.insert(lines, string.format("set -g @nvim_color_%s_fg '%s'", k, v.fg))
+					table.insert(lines, string.format("set -g @nvim_color_%s_bg '%s'", k, v.bg))
+				end
+				table.sort(lines)
+				local f = io.open(path, "w")
+				if f then
+					f:write(table.concat(lines, "\n") .. "\n")
+					f:close()
+					debug("wrote cache to " .. path)
+				end
+			end
+
 			if config.settings.tmux_source_file then
 				os.execute("tmux source " .. config.settings.tmux_source_file)
 			end

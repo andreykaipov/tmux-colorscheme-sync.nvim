@@ -6,6 +6,7 @@ M.default_settings = {
 	debug = false, -- debug logging
 	mapping = nil, -- any additional highlight groups you want to expose
 	tmux_source_file = "~/.tmux.conf", -- the path of your tmux conf file the plugin will resource
+	cache_file = nil, -- path to write tmux set commands so tmux can source them on startup
 }
 
 M.get_color_mapping = function()
