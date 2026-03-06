@@ -76,81 +76,51 @@ function M.setup(settings)
 		end,
 	})
 
-        vim.api.nvim_create_autocmd({ "UIEnter", "ColorScheme" }, {
-        	group = utils.augroup("get-original-colors"),
-        	pattern = "*",
-        	desc = "",
-        	callback = function()
-        		M.normal = utils.color("Normal")
-        		M.normal_nc = utils.color("NormalNC")
-        		M.line_nr = utils.color("LineNr")
-        	end,
-        })
-        vim.api.nvim_create_autocmd({ "FocusLost" }, {
-        	group = utils.augroup("tmux-make-transparent"),
-        	pattern = "*",
-        	desc = "Sets some nvim highlight groups to none",
-        	callback = function()
-        		vim.api.nvim_set_hl(0, "Normal", { bg = "none" })
-        		vim.api.nvim_set_hl(0, "NormalNC", { bg = "none" })
-        		vim.api.nvim_set_hl(0, "LineNr", { bg = "none" })
-        		-- TODO: make neotree transparent when focus is lost but i'm still in nvim
-        		-- don't think it's possible, when NeoTreeNormalNC is none, it takes the bg of Normal always
-        		-- might just use float windows for it anyway
-        		-- vim.api.nvim_set_hl(0, "NeoTreeNormal", { bg = "none" })
-        		-- vim.api.nvim_set_hl(0, "NeoTreeNormalNC", { bg = "none" })
-        	end,
-        })
-        vim.api.nvim_create_autocmd({ "FocusGained" }, {
-        	group = utils.augroup("tmux-restore-transparency"),
-        	pattern = "*",
-        	desc = "Restores transparency to original colors of colorscheme",
-        	callback = function()
-        		vim.api.nvim_set_hl(0, "Normal", { bg = M.normal.bg })
-        		vim.api.nvim_set_hl(0, "NormalNC", { bg = M.normal_nc.bg })
-        		vim.api.nvim_set_hl(0, "LineNr", { bg = M.line_nr.bg })
-        	end,
-        })
-
-	-- vim.api.nvim_set_hl(0, "NeoTreeNormalNC", { bg = "none" })
-	-- vim.api.nvim_set_hl(0, "NeoTreeNormalNC", { bg = "none" })
-
-	-- vim.api.nvim_create_autocmd({ "WinLeave", "FocusLost" }, {
-	-- 	group = utils.augroup("tmux-left-neotree"),
-	-- 	pattern = "*",
-	-- 	desc = "",
-	-- 	callback = function()
-	-- 		-- if vim.bo.filetype == "neo-tree" then
-	-- 		-- print("left neo-tree")
-	-- 		-- vim.api.nvim_set_hl(0, "Normal", { bg = "none" })
-	-- 		-- vim.api.nvim_set_hl(0, "NormalNC", { bg = "none" })
-	-- 		-- vim.api.nvim_set_hl(0, "NeoTreeNormalNC", { bg = "none" })
-	-- 		-- end
-	-- 		-- vim.api.nvim_set_hl(0, "Normal", { bg = "none" })
-	-- 		-- os.execute("tmux set-option -w window-active-style 'fg=default,bg=default'")
-	-- 		-- vim.api.nvim_set_hl(0, "Normal", { fg = M.normal.fg, bg = M.normal.bg })
-	-- 	end,
-	-- })
-	-- vim.api.nvim_create_autocmd({ "WinEnter", "FocusGained" }, {
-	-- 	group = utils.augroup("tmux-winenter"),
-	-- 	pattern = "*",
-	-- 	desc = "",
-	-- 	callback = function()
-	-- 		-- os.execute("tmux set-option -w window-active-style 'fg=default,bg=default'")
-	-- 		vim.api.nvim_set_hl(0, "Normal", { fg = M.normal.fg, bg = M.normal.bg })
-	-- 		vim.api.nvim_set_hl(0, "NormalNC", { bg = "none" })
-	-- 		-- print("neo-tree)
-	-- 	end,
-	-- })
-	-- vim.api.nvim_create_autocmd({ "FocusLost" }, {
-	-- 	group = utils.augroup("tmux-focuslost"),
-	-- 	pattern = "*",
-	-- 	desc = "",
-	-- 	callback = function()
-	-- 		-- vim.api.nvim_set_hl(0, "Normal", { bg = "none" })
-	-- 		-- os.execute(string.format("tmux set-option -w window-active-style 'fg=default,bg=%s'", normal.bg))
-	-- 	end,
-	-- })
+	vim.api.nvim_create_autocmd({ "UIEnter", "ColorScheme" }, {
+		group = utils.augroup("get-original-colors"),
+		pattern = "*",
+		desc = "",
+		callback = function()
+			M.normal = utils.color("Normal")
+			M.normal_nc = utils.color("NormalNC")
+			M.line_nr = utils.color("LineNr")
+		end,
+	})
+	vim.api.nvim_create_autocmd({ "FocusLost" }, {
+		group = utils.augroup("tmux-make-transparent"),
+		pattern = "*",
+		desc = "Sets nvim highlight groups to inactive bg on FocusLost",
+		callback = function()
+			-- Use the dimmed bg color instead of 'none' to avoid flicker.
+			-- When bg='none' (transparent), Neovim may redraw before FocusGained
+			-- autocmds restore colors, showing a flash of the terminal bg.
+			-- Using the actual dim color is visually identical (terminal bg is
+			-- set to the same color via OSC 11) but flicker-free.
+			local inactive_bg = "none"
+			local colors = config.get_color_mapping()
+			if colors.normal_lighter and colors.normal_lighter.bg and colors.normal_lighter.bg ~= "default" then
+				inactive_bg = colors.normal_lighter.bg
+			end
+			vim.api.nvim_set_hl(0, "Normal", { bg = inactive_bg })
+			vim.api.nvim_set_hl(0, "NormalNC", { bg = inactive_bg })
+			vim.api.nvim_set_hl(0, "LineNr", { bg = inactive_bg })
+			-- Apply to any extra highlight groups the user configured
+			local extra = config.settings.focus_lost_highlights or {}
+			for _, hl_name in ipairs(extra) do
+				vim.api.nvim_set_hl(0, hl_name, { bg = inactive_bg })
+			end
+		end,
+	})
+	vim.api.nvim_create_autocmd({ "FocusGained" }, {
+		group = utils.augroup("tmux-restore-transparency"),
+		pattern = "*",
+		desc = "Restores transparency to original colors of colorscheme",
+		callback = function()
+			vim.api.nvim_set_hl(0, "Normal", { bg = M.normal.bg })
+			vim.api.nvim_set_hl(0, "NormalNC", { bg = M.normal_nc.bg })
+			vim.api.nvim_set_hl(0, "LineNr", { bg = M.line_nr.bg })
+		end,
+	})
 end
 
 return M
