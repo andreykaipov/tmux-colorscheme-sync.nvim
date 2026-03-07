@@ -107,7 +107,9 @@ function M.setup(settings)
 			-- Apply to any extra highlight groups the user configured
 			local extra = config.settings.focus_lost_highlights or {}
 			for _, hl_name in ipairs(extra) do
-				vim.api.nvim_set_hl(0, hl_name, { bg = inactive_bg })
+				local hl = vim.api.nvim_get_hl(0, { name = hl_name })
+				hl.bg = inactive_bg
+				vim.api.nvim_set_hl(0, hl_name, hl)
 			end
 		end,
 	})
