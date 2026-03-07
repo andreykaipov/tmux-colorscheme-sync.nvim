@@ -103,7 +103,7 @@ function M.setup(settings)
 			end
 			vim.api.nvim_set_hl(0, "Normal", { bg = inactive_bg })
 			vim.api.nvim_set_hl(0, "NormalNC", { bg = inactive_bg })
-			vim.api.nvim_set_hl(0, "LineNr", { bg = inactive_bg })
+			vim.api.nvim_set_hl(0, "LineNr", { fg = M.line_nr.fg, bg = inactive_bg })
 			-- Apply to any extra highlight groups the user configured
 			local extra = config.settings.focus_lost_highlights or {}
 			for _, hl_name in ipairs(extra) do
@@ -118,7 +118,7 @@ function M.setup(settings)
 		callback = function()
 			vim.api.nvim_set_hl(0, "Normal", { bg = M.normal.bg })
 			vim.api.nvim_set_hl(0, "NormalNC", { bg = M.normal_nc.bg })
-			vim.api.nvim_set_hl(0, "LineNr", { bg = M.line_nr.bg })
+			vim.api.nvim_set_hl(0, "LineNr", { fg = M.line_nr.fg, bg = M.line_nr.bg })
 		end,
 	})
 end
