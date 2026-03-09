@@ -9,6 +9,7 @@ M.default_settings = {
 	cache_file = nil, -- path to write tmux set commands so tmux can source them on cold start
 	darker_shade = -40, -- percent to darken normal_bg for normal_darker
 	lighter_shade = 5, -- percent to lighten normal_bg for normal_lighter
+	manage_focus = true, -- register FocusLost/FocusGained autocmds to dim/restore highlights
 	focus_lost_highlights = {}, -- extra highlight groups to dim on FocusLost (e.g. {"NvimTreeNormal", "NvimTreeNormalNC"})
 }
 
