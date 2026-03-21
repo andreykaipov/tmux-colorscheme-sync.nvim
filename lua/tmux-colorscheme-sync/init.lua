@@ -18,14 +18,6 @@ function M.setup(settings)
 		M.normal = config.get_color_mapping().normal
 	end
 
-	-- Repaint the tmux pane bg immediately (before colorscheme is set).
-	-- The cached @nvim_color_normal_bg is already in tmux from the cache
-	-- file sourced at tmux startup. This prevents a black flash on nvim's
-	-- first render.
-	if vim.env.TMUX then
-		vim.fn.system({ 'tmux', 'set', '-p', 'window-active-style', 'bg=#{@nvim_color_normal_bg}' })
-	end
-
 	vim.api.nvim_create_autocmd({ "UIEnter", "ColorScheme" }, {
 		group = utils.augroup("setvars"),
 		pattern = "*",
