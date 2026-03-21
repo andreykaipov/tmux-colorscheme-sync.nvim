@@ -72,6 +72,9 @@ function M.setup(settings)
 
 			if changed and config.settings.tmux_source_file then
 				os.execute("tmux source " .. config.settings.tmux_source_file)
+			else
+				-- Repaint pane bg even when cache unchanged (prevents black flash)
+				os.execute("tmux set -p window-style 'bg=#{@nvim_color_normal_bg}'")
 			end
 		end,
 	})
