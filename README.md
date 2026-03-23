@@ -66,7 +66,7 @@ require('tmux-colorscheme-sync').setup({
 
     -- Path to write tmux `set -g` commands so tmux can source them on cold
     -- start (before Neovim is open). Only written when colors change.
-    cache_file = nil,
+    state_file = nil,
 
     -- Percent to darken normal bg for the `normal_darker` color mapping.
     darker_shade = -40,
@@ -85,7 +85,7 @@ require('tmux-colorscheme-sync').setup({
 
 ```lua
 require('tmux-colorscheme-sync').setup({
-    cache_file = '~/.local/state/tmux/colorscheme-cache.conf',
+    state_file = '~/.local/state/tmux/colorscheme-cache.conf',
     tmux_source_file = '~/.config/tmux/styles.conf',
     lighter_shade = 30,
     focus_lost_highlights = {
@@ -117,7 +117,7 @@ set -g status-style "bg=#{@nvim_color_normal_darker_bg},fg=#{@nvim_color_normal_
 set -g window-status-current-style "bg=#{@nvim_color_normal_bg}"
 ```
 
-If `cache_file` is set, the variables are also written as `set -g` commands to
+If `state_file` is set, the variables are also written as `set -g` commands to
 a file that tmux can source on startup:
 
 ```tmux
